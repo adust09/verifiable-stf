@@ -2,18 +2,18 @@
 
 Verifiable State Transition Function — Lean 4 IR trace interpreter + RISC Zero zkVM verifier.
 
-Lean 4 の lambda-RC IR をホスト側で解釈・実行し、実行トレースを生成。zkVM ゲストがそのトレースを検証することで、Lean で記述された STF の正しさを証明する。
+Interprets Lean 4 lambda-RC IR on the host side and generates an execution trace. The zkVM guest verifies each trace step, proving correctness of the Lean-written STF.
 
 ## Architecture
 
 ```
-guest/IrDump.lean          → Lean IR を JSON にダンプ
+guest/IrDump.lean          → Dump Lean IR to JSON
     ↓
-tools/ir-trace (host)      → IR JSON を解釈し、実行トレース (bincode) を生成
+tools/ir-trace (host)      → Interpret IR JSON, generate execution trace (bincode)
     ↓
-host/src/main.rs           → トレースを zkVM に渡し、execute/prove を実行
+host/src/main.rs           → Pass trace to zkVM, run execute/prove
     ↓
-methods/guest-ir-trace     → zkVM ゲスト: トレースの各ステップを再検証
+methods/guest-ir-trace     → zkVM guest: re-verify each trace step
 ```
 
 ## Quick Start
@@ -110,7 +110,7 @@ Output:      8 bytes (Success)
 | JSON | ~15 GB | Too large |
 | bincode | 8.14 GB | Exceeds zkVM ~4 GB input limit |
 
-Root cause: value_table に 639,837 エントリ (大きな ByteArray/Object を含む) が格納される。詳細は [docs/problem.md](docs/problem.md) 参照。
+Root cause: the value_table stores 639,837 entries including large ByteArray/Object values. See [docs/problem.md](docs/problem.md) for detailed analysis and proposed solutions.
 
 ## Project Structure
 
