@@ -13,6 +13,17 @@ target
 # Contains mutation testing data
 **/mutants.out*/
 
+# Lean build artifacts
+.lake/
+
+# Generated IR and trace files
+ir_program.json
+ir_program_sum.json
+ir_program_filtered.json
+*.trace.json
+trace.bin
+*.pb
+
 # RustRover
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
 #  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
