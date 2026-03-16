@@ -24,6 +24,15 @@ ir_program_filtered.json
 trace.bin
 *.pb
 
+# Peregrine toolchain (local-only, not tracked in git)
+tools/peregrine-tool/
+tools/lean-to-lambdabox/
+
+# Spike build artifacts
+spike/**/extraction/
+spike/**/rust-check/target/
+spike/**/.lake/
+
 # RustRover
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
 #  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore

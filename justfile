@@ -50,6 +50,26 @@ bench-ir-trace-cycles VALIDATORS="10":
         echo
     done
 
+# Local-only: requires opam + peregrine toolchain
+setup-peregrine:
+    cd tools/peregrine-tool && opam switch create . 4.14.2 \
+      --repositories default,coq-released=https://coq.inria.fr/opam/released \
+    && opam install . --deps-only
+
+# Local-only: requires opam + peregrine toolchain
+build-peregrine:
+    cd tools/peregrine-tool && opam exec --switch . -- make
+
+# Local-only: requires lean + lean-to-lambdabox
+setup-lean-to-lambdabox:
+    cd tools/lean-to-lambdabox && lake build
+
+# Local-only: run trivial extraction spike
+spike-trivial:
+    cd spike/trivial && lake build
+    cd tools/peregrine-tool && opam exec --switch . -- dune exec peregrine -- rust \
+      ../../spike/trivial/extraction/identity.ast -o ../../spike/trivial/extraction/identity.rs
+
 # Clean all artifacts
 clean:
     cargo clean
