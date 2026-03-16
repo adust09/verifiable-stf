@@ -1,0 +1,11 @@
+name = "spike_trivial"
+version = "0.1.0"
+defaultTargets = ["Tests"]
+
+[[require]]
+name = "lean_to_lambdabox"
+path = "../../tools/lean-to-lambdabox"
+
+[[lean_lib]]
+name = "Tests"
+roots = ["src.Trivial"]
