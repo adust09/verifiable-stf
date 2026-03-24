@@ -134,3 +134,87 @@ pub fn sha256(data: &[u8]) -> [u8; 32] {
     hash.copy_from_slice(&result);
     hash
 }
+
+#[cfg(test)]
+mod tests {
+    use std::collections::HashMap;
+
+    use ir_trace_common::trace_types::TRACE_MAGIC;
+
+    use super::*;
+
+    #[test]
+    fn compact_trace_prunes_unreferenced_values_and_remaps_ids() {
+        let mut trace = Trace {
+            header: TraceHeader {
+                magic: TRACE_MAGIC,
+                ir_program_hash: [0; 32],
+                input_hash: [0; 32],
+                output_hash: [0; 32],
+                value_count: 4,
+                step_count: 1,
+            },
+            value_table: vec![
+                Value::Scalar(10),
+                Value::Scalar(999),
+                Value::Scalar(20),
+                Value::Scalar(30),
+            ],
+            steps: vec![TraceStep::PrimResult {
+                op: ir_trace_common::trace_types::PrimOp::UInt64Add,
+                args: vec![0, 2],
+                result: 3,
+            }],
+            output_value_id: 3,
+        };
+
+        compact_trace(&mut trace);
+
+        assert_eq!(
+            trace.value_table,
+            vec![Value::Scalar(10), Value::Scalar(20), Value::Scalar(30)]
+        );
+        assert_eq!(trace.header.value_count, 3);
+        assert_eq!(trace.header.step_count, 1);
+        assert_eq!(trace.output_value_id, 2);
+
+        match &trace.steps[0] {
+            TraceStep::PrimResult { args, result, .. } => {
+                assert_eq!(args, &vec![0, 1]);
+                assert_eq!(*result, 2);
+            }
+            step => panic!("unexpected step after compaction: {:?}", step),
+        }
+    }
+
+    #[test]
+    fn build_trace_emits_new_magic_and_compacted_counts() {
+        let mut interpreter = Interpreter::new(HashMap::new());
+        interpreter.value_registry.table = vec![
+            Value::Scalar(1),
+            Value::Scalar(777),
+            Value::Scalar(2),
+        ];
+        interpreter.trace_steps = vec![TraceStep::PrimResult {
+            op: ir_trace_common::trace_types::PrimOp::UInt64Add,
+            args: vec![0],
+            result: 2,
+        }];
+
+        let trace = build_trace(
+            &mut interpreter,
+            b"dummy-ir",
+            b"dummy-input",
+            &Value::Scalar(2),
+            2,
+        );
+
+        assert_eq!(trace.header.magic, TRACE_MAGIC);
+        assert_eq!(trace.header.value_count, 2);
+        assert_eq!(trace.header.step_count, 1);
+        assert_eq!(trace.value_table, vec![Value::Scalar(1), Value::Scalar(2)]);
+        assert_eq!(trace.output_value_id, 1);
+        assert!(interpreter.value_registry.table.is_empty());
+        assert!(interpreter.trace_steps.is_empty());
+    }
+}

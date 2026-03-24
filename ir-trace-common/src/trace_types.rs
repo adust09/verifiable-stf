@@ -4,7 +4,7 @@ use crate::value::Value;
 
 pub type ValueId = u32;
 
-pub const TRACE_MAGIC: [u8; 4] = *b"LT01";
+pub const TRACE_MAGIC: [u8; 4] = *b"LT02";
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct TraceHeader {
