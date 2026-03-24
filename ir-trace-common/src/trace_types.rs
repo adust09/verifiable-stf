@@ -129,11 +129,6 @@ pub enum PrimOp {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum TraceStep {
-    Call {
-        fn_id: u32,
-        args: Vec<ValueId>,
-        result: ValueId,
-    },
     Branch {
         scrutinee: ValueId,
         chosen_tag: u16,
@@ -167,6 +162,5 @@ pub struct Trace {
     pub header: TraceHeader,
     pub value_table: Vec<Value>,
     pub steps: Vec<TraceStep>,
-    pub fn_name_table: Vec<String>,
     pub output_value_id: ValueId,
 }
